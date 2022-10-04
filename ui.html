@@ -1,0 +1,29 @@
+<script>
+    onmessage = (event) => {
+        if (event.data.pluginMessage.type === "translation") {
+            var myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+
+            var urlencoded = new URLSearchParams();
+            urlencoded.append("text", event.data.pluginMessage.text);
+            urlencoded.append("token", "1535fa30d7e25dd8a49f1536779734ec8286108d115da5045d77f3b4185d8f790");
+            urlencoded.append("fromLang", "auto");
+            urlencoded.append("toLangs", event.data.pluginMessage.lang);
+
+            var requestOptions = {
+                method: 'POST',
+                headers: myHeaders,
+                body: urlencoded,   
+                redirect: 'follow'
+            };
+
+            fetch("https://appcake.work/api/translator/translate_text", requestOptions)
+                .then(response => response.text())
+                .then(responseText => {
+                        const res = JSON.parse(responseText)
+                        parent.postMessage({ pluginMessage: { type: 'show-translation', responseText: res[event.data.pluginMessage.lang], lang: event.data.pluginMessage.lang, frame: event.data.pluginMessage.frame }}, '*')
+                    })
+                .catch(error => console.log('error', error));
+            }
+    }
+</script>
